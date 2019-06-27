@@ -25,36 +25,39 @@ if match_ret[1] == false then
 	end
 end
 
-if ngx.var.request_method =="POST" then 
+local server_uri = match_ret[3]
+--local args = nil
+local body = nil
+if "POST" == ngx.var.request_method  then 
 	ngx.req.read_body()
-end
-local args, err = ngx.req.get_uri_args()
-
-if  err then
-		ngx.say("failed to get args: ", err)
-		return
+	args = ngx.req.get_post_args()
+    body = ngx.req.get_body_data()
+elseif "GET" == ngx.var.request_method  then 
+	args = ngx.req.get_uri_args()
 end
 
-	local http = require "resty.http"
-	local httpc = http.new()
-	local res, err = httpc:request_uri(match_ret[3],{
-	        method = ngx.var.request_method,
-	        body=args.data,
-	         headers = {
-          		["Content-Type"] = ngx.req.get_headers()["Content-Type"] or Content_Type,
-          		["Host"] = match_ret[4] or ngx.var.host
-        		},
-	        keepalive_timeout = 60,
-	        keepalive_pool = 10
-	      })
-	 if not res then
-		ngx.say("failed to request: ", err)
-		return
-	 end
-	ngx.status = res.status
-	ngx.header.content_type = res.headers["Content-Type"] or Content_Type
-	ngx.say(res.body)
+local headers = {
+      			["Content-Type"] = ngx.req.get_headers()["Content-Type"] or Content_Type,
+      			["Host"] = match_ret[4] or ngx.var.host
+    			}
+
+local http = require "resty.http"
+local httpc = http.new()
+local res, err = httpc:request_uri(server_uri,{
+        method = ngx.var.request_method,
+        body=body,
+        headers = headers,
+        keepalive_timeout = 60,
+        keepalive_pool = 10
+      })
+ if not res then
+	ngx.say("failed to request: ", err)
 	return
+ end
+ngx.status = res.status
+ngx.header.content_type = res.headers["Content-Type"] or Content_Type
+ngx.say(res.body)
+return
 
 
 --ngx.status=200

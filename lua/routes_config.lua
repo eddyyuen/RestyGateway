@@ -8,121 +8,157 @@ if not c then
 end
 
 local url_routes = {
-	api =  {
+	{
+		name="api",
 		prefix="/api/",
 		route="",
 		server_host={
 			server01 = {uri ="http://api.scigeeker.com/",weight=100},
 		},
-		host="api.scigeeker.com",
-		usejwt=false
+		skipjwt={
+			"^/api/get",
+			"^/api/sy",
+		},
+		host="",
+		usejwt=true
 	},
-	wxapi = {
+	{
+		name="wxapi",
 		prefix="/wxapi/",
 		route="",
 		server_host={
 			server03 = {uri ="http://wxapi.scigeeker.com/",weight=100},
 		},
+		skipjwt={},
 		host="wxapi.scigeeker.com",
 		usejwt=false
 	},
-	api_gdqy = {
+	{
+		name="api_gdqy",
 		prefix="/api-gdqy/",
 		route="",
 		server_host={
 			server04 = {uri ="http://api.gdgy.scigeeker.com/",weight=100},
 		},
+		skipjwt={},
 		host="api.gdgy.scigeeker.com",
-		usejwt=false
+		usejwt=false,
+		orderno=30
 	},
-	api_sysu = {
+	{
+		name="api_sysu",
 		prefix="/api-sysu/",
 		route="",
 		server_host={
 			server04 = {uri ="http://api.sysu.scigeeker.com/",weight=100},
 		},
+		skipjwt={},
 		host="api.sysu.scigeeker.com",
-		usejwt=false
+		usejwt=false,
+		orderno=40
 	},
-	api_gzhmu = {
+	{
+		name="api_gzhmu",
 		prefix="/api-gzhmu/",
 		route="",
 		server_host={
 			server04 = {uri ="http://api.gzhmu.scigeeker.com/",weight=100},
 		},
+		skipjwt={},
 		host="api.gzhmu.scigeeker.com",
-		usejwt=false
+		usejwt=false,
+		orderno=50
 	},
-	api_gzhu = {
+	{
+		name="api_gzhu",
 		prefix="/api-gzhu/",
 		route="",
 		server_host={
 			server04 = {uri ="http://api.gzhu.scigeeker.com/",weight=100},
 		},
+		skipjwt={},
 		host="api.gzhu.scigeeker.com",
-		usejwt=false
+		usejwt=false,
+		orderno=60
 	},
-	api_scut = {
+	{
+		name="api_scut",
 		prefix="/api-scut/",
 		route="",
 		server_host={
 			server04 = {uri ="http://api.scut.scigeeker.com/",weight=100},
 		},
+		skipjwt={},
 		host="api.scut.scigeeker.com",
-		usejwt=false
+		usejwt=false,
+		orderno=70
 	},
-	api_dev = {
+	{
+		name="api_dev",
 		prefix="/api-dev/",
 		route="",
 		server_host={
 			server04 = {uri ="http://api.dev.scigeeker.com/",weight=100},
 		},
+		skipjwt={},
 		host="api.dev.scigeeker.com",
-		usejwt=false
+		usejwt=false,
+		orderno=80
 	},
-	api_vending = {
+	{
+		name="api_vending",
 		prefix="/api-vending/",
 		route="",
 		server_host={
 			server04 = {uri ="http://api-vending.gzhmu.scigeeker.com/",weight=100},
 		},
+		skipjwt={},
 		host="api-vending.gzhmu.scigeeker.com",
-		usejwt=false
+		usejwt=false,
+		orderno=90
 	},
-	api_an1= {
+	{
+		name="api_an1",
 		prefix="/api-an1/",
 		route="",
 		server_host={
 			server04 = {uri ="http://172.18.177.197:9039/",weight=100},
 		},
+		skipjwt={},
 		host="172.18.177.197",
-		usejwt=false
+		usejwt=false,
+		orderno=100
 	},
-	client_sync = {
+	{
+		name="client_sync",
 		prefix="/api-gdqy/",
 		route="",
 		server_host={
 			server04 = {uri ="http://172.18.212.43:9005/",weight=100},
 		},
+		skipjwt={},
 		host="172.18.212.43",
-		usejwt=false
+		usejwt=false,
+		orderno=110
 	},
-	default = {
+	{
+		name="default",
 		prefix="/",
 		route="",
 		server_host={
 			server04 = {uri ="http://127.0.0.1/404/",weight=100},
 		},
+		skipjwt={},
 		host="",
-		usejwt=true
+		usejwt=true,
+		orderno=120
 	},
 }
 
 
 function _M.init()
 	c:set("routes",url_routes)
-	for k,v in pairs(url_routes) do 
-		c:set(k,v)
+	for k,v in ipairs(url_routes) do 
 		local host_weight = {}
 		local count =0
 		for k1,v1 in pairs(v["server_host"]) do 
@@ -132,7 +168,8 @@ function _M.init()
 			count = v1["weight"]
 
 		end
-		c:set(v["prefix"].."hosts",host_weight)
+		c:set(v["name"].."hosts",host_weight)
+		c:set(v["name"].."skipjwt",v["skipjwt"])
 	end
 end
 
